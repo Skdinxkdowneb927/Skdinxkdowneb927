@@ -5,7 +5,7 @@ import requests
 
 # Set up logging
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(level)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
@@ -107,6 +107,9 @@ def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
 def main() -> None:
     """Start the bot."""
     application = Application.builder().token(my_bot_token).build()
+
+    # Initialize JobQueue
+    job_queue = application.job_queue
 
     # Register handlers
     application.add_handler(CommandHandler("start", start))
