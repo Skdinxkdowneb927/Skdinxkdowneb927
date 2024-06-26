@@ -6,6 +6,7 @@ import os
 import threading
 import http.server
 import socketserver
+import time
 
 # Set up logging
 logging.basicConfig(
@@ -127,6 +128,15 @@ def start_dummy_server():
         logger.info(f"Serving at port {PORT}")
         httpd.serve_forever()
 
+def keep_service_active():
+    while True:
+        logger.info("Sending keep-alive request to dummy server.")
+        try:
+            requests.get("http://localhost:8080")
+        except Exception as e:
+            logger.error(f"Keep-alive request failed: {e}")
+        time.sleep(300)  # Wait for 5 minutes before sending the next request
+
 def main() -> None:
     """Start the bot."""
     logger.info("Starting the bot application.")
@@ -141,6 +151,9 @@ def main() -> None:
 
     # Start the dummy web server in a separate thread
     threading.Thread(target=start_dummy_server).start()
+
+    # Start the keep-alive thread
+    threading.Thread(target=keep_service_active).start()
 
     # Start the Bot
     application.run_polling()
