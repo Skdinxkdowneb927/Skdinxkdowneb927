@@ -1,6 +1,6 @@
 import logging
 from telegram import Update, ForceReply
-from telegram.ext import Application, CommandHandler, ContextTypes, JobQueue
+from telegram.ext import Application, CommandHandler, ContextTypes
 import requests
 import os
 import threading
