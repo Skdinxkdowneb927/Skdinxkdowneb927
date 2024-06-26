@@ -41,6 +41,7 @@ products = {
 
 # Check product status function
 async def check_product_status(context: ContextTypes.DEFAULT_TYPE, initial_run=False):
+    logger.info("Starting product status check.")
     for product_name, product_url in products.items():
         try:
             response = requests.get(product_url)
@@ -70,10 +71,12 @@ async def check_product_status(context: ContextTypes.DEFAULT_TYPE, initial_run=F
                     )
         except Exception as e:
             logger.error(f"Error checking status of product {product_name}: {e}")
+    logger.info("Completed product status check.")
 
 # Define start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
+    logger.info("Received /start command.")
     user = update.effective_user
     await update.message.reply_html(
         rf"Hi {user.mention_html()}!",
@@ -101,16 +104,20 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # Define a test command to send a test message to the channel
 async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a test message to the channel."""
+    logger.info("Received /test command.")
     await context.bot.send_message(chat_id=channel_username, text="Test message to channel.")
     await update.message.reply_text("Test message sent.")
 
 # Remove existing job
 def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
+    logger.info(f"Checking for existing job with name {name}.")
     current_jobs = context.job_queue.get_jobs_by_name(name)
     if not current_jobs:
+        logger.info(f"No existing job with name {name} found.")
         return False
     for job in current_jobs:
         job.schedule_removal()
+        logger.info(f"Removed job with name {name}.")
     return True
 
 def start_dummy_server():
@@ -122,6 +129,7 @@ def start_dummy_server():
 
 def main() -> None:
     """Start the bot."""
+    logger.info("Starting the bot application.")
     application = Application.builder().token(my_bot_token).build()
 
     # Initialize JobQueue
