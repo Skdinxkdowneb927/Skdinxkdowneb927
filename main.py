@@ -82,9 +82,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     # Schedule the periodic check
     job_removed = remove_job_if_exists("check_product_status", context)
-    context.job_queue.run_repeating(check_product_status, interval=15, first=0, name="check_product_status")
+    if job_removed:
+        logger.info("Old job removed.")
 
+    logger.info("Scheduling the periodic check for product status.")
+    context.job_queue.run_repeating(check_product_status, interval=15, first=0, name="check_product_status")
+    
     # Initial run to send the current availability status
+    logger.info("Running the initial product status check.")
     await check_product_status(context, initial_run=True)
 
     text = 'Monitoring started. Checking the product status every 15 seconds.'
