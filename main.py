@@ -2,6 +2,10 @@ import logging
 from telegram import Update, ForceReply
 from telegram.ext import Application, CommandHandler, ContextTypes, JobQueue
 import requests
+import os
+import threading
+import http.server
+import socketserver
 
 # Set up logging
 logging.basicConfig(
@@ -104,6 +108,13 @@ def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
         job.schedule_removal()
     return True
 
+def start_dummy_server():
+    PORT = int(os.environ.get("PORT", 8080))
+    Handler = http.server.SimpleHTTPRequestHandler
+    with socketserver.TCPServer(("", PORT), Handler) as httpd:
+        logger.info(f"Serving at port {PORT}")
+        httpd.serve_forever()
+
 def main() -> None:
     """Start the bot."""
     application = Application.builder().token(my_bot_token).build()
@@ -114,6 +125,9 @@ def main() -> None:
     # Register handlers
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("test", test))
+
+    # Start the dummy web server in a separate thread
+    threading.Thread(target=start_dummy_server).start()
 
     # Start the Bot
     application.run_polling()
